@@ -1,0 +1,14 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1
+  },
+  "1 error pnpm": {
+    "code": "ERR_PNPM_INVALID_OVERRIDE_SELECTOR",
+    "err": {
+      "name": "pnpm",
+      "message": "Cannot parse the \"//\" selector in the overrides",
+      "code": "ERR_PNPM_INVALID_OVERRIDE_SELECTOR",
+      "stack": "pnpm: Cannot parse the \"//\" selector in the overrides\n    at parsePkgSelector (D:\\Program Files\\nodejs\\node_global\\node_modules\\pnpm\\dist\\pnpm.cjs:119718:15)\n    at D:\\Program Files\\nodejs\\node_global\\node_modules\\pnpm\\dist\\pnpm.cjs:119710:22\n    at Array.map (<anonymous>)\n    at parseOverrides (D:\\Program Files\\nodejs\\node_global\\node_modules\\pnpm\\dist\\pnpm.cjs:119696:40)\n    at default_1 (D:\\Program Files\\nodejs\\node_global\\node_modules\\pnpm\\dist\\pnpm.cjs:119742:152)\n    at createReadPackageHook (D:\\Program Files\\nodejs\\node_global\\node_modules\\pnpm\\dist\\pnpm.cjs:120790:58)\n    at mutateModules (D:\\Program Files\\nodejs\\node_global\\node_modules\\pnpm\\dist\\pnpm.cjs:120536:32)\n    at async install (D:\\Program Files\\nodejs\\node_global\\node_modules\\pnpm\\dist\\pnpm.cjs:120510:24)\n    at async handler (D:\\Program Files\\nodejs\\node_global\\node_modules\\pnpm\\dist\\pnpm.cjs:122141:31)\n    at async D:\\Program Files\\nodejs\\node_global\\node_modules\\pnpm\\dist\\pnpm.cjs:186810:21"
+    }
+  }
+}
