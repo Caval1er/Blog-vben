@@ -44,7 +44,7 @@ const fakeCodeList: any = {
   '2': ['2000', '4000', '6000'],
 }
 export default [
-  // mock user login
+  //mock user login
   {
     url: '/basic-api/login',
     timeout: 200,
@@ -57,22 +57,16 @@ export default [
       if (!checkUser) {
         return resultError('Incorrect account or password！')
       }
-      const { userId, username: _username, token, realName, desc, roles } = checkUser
-      return resultSuccess({
-        roles,
-        userId,
-        username: _username,
-        token,
-        realName,
-        desc,
-      })
+      // const { userId, username: _username, token, realName, desc, roles } = checkUser
+      const { token } = checkUser
+      return resultSuccess({ token }, { message: 'login success' })
     },
   },
   {
     url: '/basic-api/getUserInfo',
     method: 'get',
     response: (request: requestParams) => {
-      const token = getRequestToken(request)
+      const token = getRequestToken(request)?.split(' ')[1]
       if (!token) return resultError('Invalid token')
       const checkUser = createFakeUserList().find((item) => item.token === token)
       if (!checkUser) {
@@ -102,7 +96,7 @@ export default [
     timeout: 200,
     method: 'get',
     response: (request: requestParams) => {
-      const token = getRequestToken(request)
+      const token = getRequestToken(request)?.split(' ')[1]
       if (!token) return resultError('Invalid token')
       const checkUser = createFakeUserList().find((item) => item.token === token)
       if (!checkUser) {

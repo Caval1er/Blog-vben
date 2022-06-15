@@ -8,6 +8,7 @@ enum Api {
   Logout = '/logout',
   GetUserInfo = '/getUserInfo',
   GetPermCode = '/getPermCode',
+  SessionTimeout = '/user/sessionTimeout',
 }
 
 /**
@@ -38,4 +39,15 @@ export function getPermCode() {
 
 export function doLogout() {
   return defHttp.get({ url: Api.Logout })
+}
+
+export function sessionTimeout(mode: ErrorMessageMode = 'modal') {
+  return defHttp.post(
+    {
+      url: Api.SessionTimeout,
+    },
+    {
+      errorMessageMode: mode,
+    }
+  )
 }

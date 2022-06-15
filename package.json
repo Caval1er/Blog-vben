@@ -53,6 +53,7 @@
     "qs": "^6.10.1",
     "resize-observer-polyfill": "^1.5.1",
     "sortablejs": "^1.14.0",
+    "vditor": "^3.8.15",
     "vue": "^3.2.21",
     "vue-i18n": "^9.1.9",
     "vue-router": "^4.0.12",
@@ -147,5 +148,10 @@
   "homepage": "https://github.com/anncwb/vue-vben-admin",
   "engines": {
     "node": "^12 || >=14"
+  },
+  "config": {
+    "commitizen": {
+      "path": "git-cz"
+    }
   }
 }

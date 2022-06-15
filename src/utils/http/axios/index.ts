@@ -52,6 +52,7 @@ const transform: AxiosTransform = {
 
     // 这里逻辑可以根据项目进行修改
     const hasSuccess = data && Reflect.has(data, 'code') && code === ResultEnum.SUCCESS
+
     if (hasSuccess) {
       return result
     }
@@ -86,7 +87,6 @@ const transform: AxiosTransform = {
   // 请求之前处理config
   beforeRequestHook: (config, options) => {
     const { apiUrl, joinPrefix, joinParamsToUrl, formatDate, joinTime = true, urlPrefix } = options
-
     if (joinPrefix) {
       config.url = `${urlPrefix}${config.url}`
     }
@@ -129,6 +129,7 @@ const transform: AxiosTransform = {
         config.params = undefined
       }
     }
+
     return config
   },
 
@@ -144,6 +145,7 @@ const transform: AxiosTransform = {
         ? `${options.authenticationScheme} ${token}`
         : token
     }
+
     return config
   },
 
@@ -162,6 +164,7 @@ const transform: AxiosTransform = {
     const errorLogStore = useErrorLogStoreWithOut()
     errorLogStore.addAjaxErrorInfo(error)
     const { response, code, message, config } = error || {}
+
     const errorMessageMode = config?.requestOptions?.errorMessageMode || 'none'
     const msg: string = response?.data?.error?.message ?? ''
     const err: string = error?.toString?.() ?? ''
@@ -199,7 +202,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
         // See https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#authentication_schemes
         // authentication schemes，e.g: Bearer
         // authenticationScheme: 'Bearer',
-        authenticationScheme: '',
+        authenticationScheme: 'Bearer',
         timeout: 10 * 1000,
         // 基础接口地址
         // baseURL: globSetting.apiUrl,

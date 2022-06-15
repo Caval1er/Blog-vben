@@ -29,7 +29,7 @@ export function checkStatus(
     // Return to the current page after successful login. This step needs to be operated on the login page.
     case 401:
       userStore.setToken(undefined)
-      errMessage = msg || t('sys.api.errMsg401')
+      errMessage = t('sys.api.errMsg401')
       if (stp === SessionTimeoutProcessingEnum.PAGE_COVERAGE) {
         userStore.setSessionTimeout(true)
       } else {
@@ -69,10 +69,12 @@ export function checkStatus(
       break
     default:
   }
+  console.log(errMessage)
 
   if (errMessage) {
     if (errorMessageMode === 'modal') {
       createErrorModal({ title: t('sys.api.errorTip'), content: errMessage })
+      console.log(errMessage)
     } else if (errorMessageMode === 'message') {
       error({ content: errMessage, key: `global_error_message_status_${status}` })
     }

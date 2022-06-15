@@ -92,7 +92,6 @@ export const useUserStore = defineStore({
         const { goHome = true, mode, ...loginParams } = params
         const data = await loginApi(loginParams, mode)
         const { token } = data
-
         // save token
         this.setToken(token)
         return this.afterLoginAction(goHome)
@@ -144,8 +143,8 @@ export const useUserStore = defineStore({
       if (this.getToken) {
         try {
           await doLogout()
-        } catch {
-          console.log('注销Token失败')
+        } catch (error) {
+          return Promise.reject(error)
         }
       }
       this.setToken(undefined)

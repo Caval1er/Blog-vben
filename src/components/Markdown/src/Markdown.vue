@@ -23,9 +23,10 @@ import { onMountedOrActivated } from '/@/hooks/core/onMountedOrActivated'
 type Lang = 'zh_CN' | 'en_US' | 'ja_JP' | 'ko_KR' | undefined
 
 export default defineComponent({
+  name: 'MarkDown',
   inheritAttrs: false,
   props: {
-    height: { type: Number, default: 360 },
+    height: { type: String, default: 'calc(100vh - 80px)' },
     value: { type: String, default: '' },
   },
   emits: ['change', 'get', 'update:value'],
@@ -89,12 +90,24 @@ export default defineComponent({
       const insEditor = new Vditor(wrapEl, {
         theme: getDarkMode.value === 'dark' ? 'dark' : 'classic',
         lang: unref(getCurrentLang),
-        mode: 'sv',
+        mode: 'ir',
         fullscreen: {
-          index: 520,
+          index: 800,
         },
         preview: {
-          actions: [],
+          // actions: [],
+          maxWidth: 1700,
+          hljs: {
+            lineNumber: true,
+          },
+        },
+        counter: {
+          enable: true,
+          type: 'text',
+        },
+        outline: {
+          enable: true,
+          position: 'left',
         },
         input: (v) => {
           valueRef.value = v
