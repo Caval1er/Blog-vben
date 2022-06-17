@@ -49,6 +49,11 @@ export default defineComponent({
         }
         const theme = val === 'dark' ? 'dark' : 'classic'
         instance.getVditor()?.setTheme(theme)
+        if (theme === 'dark') {
+          instance.getVditor()?.setTheme('dark', 'vue-dark')
+        } else {
+          instance.getVditor()?.setTheme('classic', 'vue')
+        }
       },
       {
         immediate: true,
@@ -91,19 +96,30 @@ export default defineComponent({
         theme: getDarkMode.value === 'dark' ? 'dark' : 'classic',
         lang: unref(getCurrentLang),
         mode: 'ir',
+        typewriterMode: true,
         fullscreen: {
           index: 800,
         },
         preview: {
           // actions: [],
           maxWidth: 1700,
+          theme: {
+            current: 'vue',
+            list: { vue: 'vue', 'vue-dark': 'vue-dark' },
+            path: 'https://cdn.jsdelivr.net/gh/Caval1er/vditor-theme@0.8',
+          },
           hljs: {
+            enable: true,
             lineNumber: true,
+            style: 'solarized-dark256',
+          },
+          markdown: {
+            toc: true,
           },
         },
         counter: {
           enable: true,
-          type: 'text',
+          type: 'markdown',
         },
         outline: {
           enable: true,
