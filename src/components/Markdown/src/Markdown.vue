@@ -26,7 +26,7 @@ export default defineComponent({
   name: 'MarkDown',
   inheritAttrs: false,
   props: {
-    height: { type: String, default: 'calc(100vh - 80px)' },
+    height: { type: String, default: 'calc(100vh - 115px)' },
     value: { type: String, default: '' },
   },
   emits: ['change', 'get', 'update:value'],
@@ -130,13 +130,14 @@ export default defineComponent({
           emit('update:value', v)
           emit('change', v)
         },
+
         after: () => {
           nextTick(() => {
             modalFn?.redoModalHeight?.()
             insEditor.setValue(valueRef.value)
             vditorRef.value = insEditor
             initedRef.value = true
-            emit('get', instance)
+            emit('get', insEditor)
           })
         },
         blur: () => {
@@ -144,7 +145,11 @@ export default defineComponent({
         },
         ...bindValue,
         cache: {
-          enable: false,
+          enable: true,
+          id: 'markdown-cache',
+          after: (html: string) => {
+            console.log(html)
+          },
         },
       })
     }

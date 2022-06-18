@@ -17,7 +17,7 @@ const markdown: AppRouteModule = {
     {
       path: 'index',
       name: 'MarkdownPage',
-      component: () => import('/@/views/editor/markdown/MarkdownForm.vue'),
+      component: () => import('/@/views/editor/markdown/ArticleDetail.vue'),
       meta: {
         title: t('routes.dashboard.about'),
         icon: 'simple-icons:about-dot-me',

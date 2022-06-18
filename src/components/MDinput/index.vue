@@ -10,6 +10,7 @@
       @blur="onBlur"
       class="material-input"
       :disabled="props.disabled"
+      ref="inputRef"
     />
     <a-space direction="vertical" :size="12" v-if="type === 'datePicker'">
       <a-date-picker
@@ -21,6 +22,7 @@
         dropdownClassName="date-picker"
         :value="value"
         @change="handleDateInput"
+        :disabled="datePickerDisabled"
       />
     </a-space>
     <span class="material-input-bar"></span>
@@ -33,12 +35,28 @@
 <script lang="ts" setup>
 import { Form } from 'ant-design-vue'
 import { Dayjs } from 'dayjs'
-import { computed, toRef, ref } from 'vue'
+import { computed, toRef, ref, onMounted } from 'vue'
 const props = defineProps({
   value: [String, Object],
   disabled: { type: Boolean, default: false },
   type: { type: String, default: 'text' },
+  datePickerDisabled: {
+    type: Boolean,
+    default: true,
+  },
+  isAutofocus: {
+    type: Boolean,
+    default: false,
+  },
 })
+onMounted(() => {
+  if (props.isAutofocus) {
+    setTimeout(() => {
+      inputRef.value.focus()
+    }, 100)
+  }
+})
+const inputRef = ref()
 const focused = ref(false)
 const inputValue = toRef(props, 'value')
 const computedClasses = computed(() => ({
@@ -60,20 +78,14 @@ const handleTextInput = (e: InputEvent) => {
   const newValue = (e.target as any).value
   triggerChange(newValue)
 }
-const handleDateInput = (date: Dayjs) => {
-  console.log('aa')
-
+const handleDateInput = (date: Dayjs | null) => {
   const newDate = date
   triggerChange(newDate)
 }
 const onFocus = () => {
-  console.log('f')
-
   focused.value = true
 }
 const onBlur = () => {
-  console.log('b')
-
   focused.value = false
 }
 </script>
@@ -172,6 +184,7 @@ body .date-picker {
   &.material--disabled {
     .material-input {
       border-bottom-style: dashed;
+      color: rgba(0, 0, 0, 0.25);
     }
   }
   // Raised state:
