@@ -34,6 +34,7 @@
       :width="width"
       placement="right"
       :closable="false"
+      @afterVisibleChange="handleDrawerOpen"
     >
       <a-form :label-col="{ style: { width: '40px' } }">
         <a-form-item name="title" v-bind="validateInfos.title">
@@ -70,7 +71,7 @@
           >
             <a-button type="primary" danger><Icon icon="bx:reset" :size="25" /></a-button>
           </a-popconfirm>
-          <a-popconfirm title="确定发表文章吗？" @confirm="confirmPublish" @cancel="cancelPublish">
+          <a-popconfirm title="确定上传文章吗？" @confirm="confirmPublish" @cancel="cancelPublish">
             <a-button type="primary"><Icon icon="ic:round-publish" :size="25" /></a-button>
           </a-popconfirm>
         </a-space>
@@ -80,32 +81,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, toRaw, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useMessage } from '/@/hooks/web/useMessage'
 import dayjs from 'dayjs'
 // 组件
 import { Form } from 'ant-design-vue'
 import Markdown from '/@/components/Markdown/src/Markdown.vue'
 import MDInput from '/@/components/MDinput/index.vue'
-import EditorHeader from '../EditorHeader/index.vue'
+import EditorHeader from '/@/views/editor/EditorHeader/index.vue'
 import Icon from '/@/components/Icon/src/Icon.vue'
 // 变量
 import type { Rule } from 'ant-design-vue/es/form'
-
+import { SingleArticleModel } from '/@/api/sys/model/articleModel'
+import { getSingleArticle, editSingleArticle, createSingleArticle } from '/@/api/sys/article'
 const props = defineProps({
   isEdit: { type: Boolean, default: false },
 })
+const route = useRoute()
+
 const { createMessage } = useMessage()
 const visible = ref<boolean>(false)
 const width = ref<Number>(500)
-let timeout: NodeJS.Timer
+let timeout
 const markdownInstance = ref()
 onMounted(() => {
   if (props.isEdit) {
-    console.log('要根据id获取数据')
-    // fetch数据
-  } else {
-    timeout = setInterval(() => (formData.publish = dayjs()), 1000)
+    getSingleArticle(Number(route.params.id))
+      .then((res) => {
+        formData = Object.assign(formData, res)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
   }
 })
 onUnmounted(() => {
@@ -118,17 +126,10 @@ const getMarkdownInstace = (instance) => {
   markdownInstance.value = instance
   instance.focus()
 }
-// 表单数据
-interface FormModel {
-  title: string
-  publish: object | undefined
-  author: string
-  content: string
-}
 const useForm = Form.useForm
-let formData = reactive<FormModel>({
+let formData = reactive<SingleArticleModel>({
   title: '',
-  publish: undefined,
+  publish: '',
   author: 'zjh',
   content: '',
 })
@@ -173,14 +174,23 @@ const { resetFields, validate, validateInfos } = useForm(formData, rules, {
   onValidate: (...args) => console.log(...args),
 })
 
-const handleSubmit = async () => {
+const handleSubmit = () => {
   validate()
-    .then(() => {
-      console.log(toRaw(formData))
+    .then(async () => {
       //调用发送文章的api
-      resetFields()
-      visible.value = false
-      createMessage.success('文章已发表', 2)
+      try {
+        if (props.isEdit) {
+          await editSingleArticle(Number(route.params.id), formData)
+        } else {
+          await createSingleArticle(formData)
+        }
+      } catch (error) {
+        console.log(error)
+      } finally {
+        resetFields()
+        visible.value = false
+        createMessage.success('文章上传成功', 2)
+      }
       // 提示用户继续编辑还是回到文章列表
     })
     .catch((err) => {
@@ -200,7 +210,16 @@ let authorDisabled = ref<boolean>(false)
 const showForm = () => {
   visible.value = true
 }
-
+const handleDrawerOpen = (visible: boolean) => {
+  if (!props.isEdit) {
+    if (visible) {
+      formData.publish = dayjs().format('YYYY-MM-DD HH:mm:ss')
+      timeout = setInterval(() => (formData.publish = dayjs().format('YYYY-MM-DD HH:mm:ss')), 1000)
+    } else {
+      clearInterval(timeout)
+    }
+  }
+}
 //气泡弹出框
 const confirmClearArticle = () => {
   console.log('confirm')
@@ -216,7 +235,10 @@ const cancelClearArticle = () => {
 const confirmClearForm = () => {
   console.log('confirmF')
   return new Promise((resolve) => {
-    resetFields()
+    // resetFields(['title'])
+    formData.title = ''
+    formData.content = ''
+    formData.publish = dayjs().format('YYYY-MM-DD HH:mm:ss')
     resolve(true)
     createMessage.success('表单内容清空', 1)
   })
@@ -226,7 +248,6 @@ const cancelClearForm = () => {
 }
 const confirmPublish = () => {
   return new Promise(async (resolve, reject) => {
-    console.log('confrimP')
     try {
       await handleSubmit()
       resolve(true)

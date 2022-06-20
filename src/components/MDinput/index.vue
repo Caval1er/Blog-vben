@@ -23,6 +23,8 @@
         :value="value"
         @change="handleDateInput"
         :disabled="datePickerDisabled"
+        format="YYYY-MM-DD HH:mm:ss"
+        value-format="YYYY-MM-DD HH:mm:ss"
       />
     </a-space>
     <span class="material-input-bar"></span>
@@ -37,7 +39,7 @@ import { Form } from 'ant-design-vue'
 import { Dayjs } from 'dayjs'
 import { computed, toRef, ref, onMounted } from 'vue'
 const props = defineProps({
-  value: [String, Object],
+  value: [String],
   disabled: { type: Boolean, default: false },
   type: { type: String, default: 'text' },
   datePickerDisabled: {
