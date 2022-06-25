@@ -19,6 +19,7 @@ declare module '@vue/runtime-core' {
     AList: typeof import('ant-design-vue/es')['List']
     AListItem: typeof import('ant-design-vue/es')['ListItem']
     AListItemMeta: typeof import('ant-design-vue/es')['ListItemMeta']
+    APageHeader: typeof import('ant-design-vue/es')['PageHeader']
     ApiCascader: typeof import('./src/components/Form/src/components/ApiCascader.vue')['default']
     ApiRadioGroup: typeof import('./src/components/Form/src/components/ApiRadioGroup.vue')['default']
     ApiSelect: typeof import('./src/components/Form/src/components/ApiSelect.vue')['default']

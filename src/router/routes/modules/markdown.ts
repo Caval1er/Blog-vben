@@ -1,26 +1,36 @@
 import type { AppRouteModule } from '/@/router/types'
 
 import { LAYOUT } from '/@/router/constant'
-import { t } from '/@/hooks/web/useI18n'
 
 const markdown: AppRouteModule = {
-  path: '/markdown',
-  name: 'Markdown',
+  path: '/article',
+  name: 'Article',
   component: LAYOUT,
-  redirect: '/markdown/list',
+  redirect: '/article/list',
   meta: {
     // hideChildrenInMenu: true,
-    icon: 'simple-icons:about-dot-me',
-    title: 'markdown',
+    icon: 'ri:article-line',
+    title: 'Article',
+    orderNo: 2,
   },
   children: [
+    {
+      path: 'list',
+      name: 'article-list',
+      component: () => import('/@/views/editor/markdown/list.vue'),
+      meta: {
+        title: 'List',
+        icon: 'ant-design:unordered-list-outlined',
+        // hideMenu: true,
+      },
+    },
     {
       path: 'create',
       name: 'createArticle',
       component: () => import('/@/views/editor/markdown/create.vue'),
       meta: {
-        title: t('routes.dashboard.about'),
-        icon: 'simple-icons:about-dot-me',
+        title: 'Create',
+        icon: 'akar-icons:edit',
         // hideMenu: true,
       },
     },
@@ -29,19 +39,9 @@ const markdown: AppRouteModule = {
       name: 'editArticle',
       component: () => import('/@/views/editor/markdown/edit.vue'),
       meta: {
-        title: t('routes.dashboard.about'),
-        icon: 'simple-icons:about-dot-me',
-        // hideMenu: true,
-      },
-    },
-    {
-      path: 'list',
-      name: 'article-list',
-      component: () => import('/@/views/editor/markdown/list.vue'),
-      meta: {
-        title: t('routes.dashboard.about'),
-        icon: 'simple-icons:about-dot-me',
-        // hideMenu: true,
+        title: 'Edit',
+        icon: 'akar-icons:edit',
+        hideMenu: true,
       },
     },
   ],

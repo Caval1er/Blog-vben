@@ -1,21 +1,37 @@
 <template>
   <div class="editor-header">
     <div class="editor-header-fixed">
-      <a-row :gutter="16" type="flex" align="middle" class="editor-header-row">
-        <a-col :span="12">
-          <slot name="tags">tags</slot>
-        </a-col>
-        <a-col :span="12">
+      <a-page-header
+        :title="props.title ? props.title : '未指定标题'"
+        @back="goArticleList"
+        class="editor-page-header"
+      >
+        <template #tags>
+          <slot name="tags"><a-tag color="blue">tags</a-tag></slot>
+        </template>
+        <template #extra>
           <div class="actions-container">
             <slot name="actions">actions</slot>
           </div>
-        </a-col>
-      </a-row>
+        </template>
+      </a-page-header>
     </div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useGo } from '/@/hooks/web/usePage'
+const props = defineProps({
+  title: {
+    type: String,
+    default: 'Title',
+  },
+})
+const go = useGo()
+const goArticleList = () => {
+  go('/article/list')
+}
+</script>
 
 <style lang="less" scoped>
 html[data-theme='dark'] {
@@ -27,17 +43,24 @@ html[data-theme='dark'] {
   height: 35px;
   position: relative;
   z-index: 1000;
+  padding: 0 10px;
+  box-sizing: border-box;
   .editor-header-fixed {
-    position: absolute;
     z-index: 1000;
     width: 100%;
     height: 35px;
-    .editor-header-row {
-      height: 35px;
-      margin: 0 !important;
-      .actions-container {
-        display: flex;
-        justify-content: flex-end;
+    display: flex;
+    align-items: center;
+    .editor-page-header {
+      width: 100%;
+      padding: 0;
+      :deep(.ant-page-header-heading) {
+        .ant-page-header-heading-left {
+          margin: 0;
+        }
+        .ant-page-header-heading-extra {
+          margin: 0;
+        }
       }
     }
   }

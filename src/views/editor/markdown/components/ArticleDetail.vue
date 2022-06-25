@@ -1,22 +1,13 @@
 <template>
   <div class="markdown-form">
-    <EditorHeader>
+    <EditorHeader :title="formData.title">
       <template #actions>
-        <a-popconfirm
-          v-if="props.isEdit"
-          title="确定删除文章吗？"
-          @confirm="confirmDelArticle"
-          @cancel="cancelDelArticle"
-        >
+        <a-popconfirm v-if="props.isEdit" title="确定删除文章吗？" @confirm="confirmDelArticle">
           <a-button type="primary" class="editor-header-button" danger
             ><Icon icon="fluent:delete-12-regular" :size="25"
           /></a-button>
         </a-popconfirm>
-        <a-popconfirm
-          title="确定清除文章内容吗？"
-          @confirm="confirmClearArticle"
-          @cancel="cancelClearArticle"
-        >
+        <a-popconfirm title="确定清除文章内容吗？" @confirm="confirmClearArticle">
           <a-button type="primary" class="editor-header-button" danger
             ><Icon icon="bx:reset" :size="25"
           /></a-button>
@@ -64,19 +55,16 @@
       </a-form>
       <template #extra>
         <a-space>
-          <a-popconfirm
-            title="确定重置表单内容吗？"
-            @confirm="confirmClearForm"
-            @cancel="cancelClearForm"
-          >
+          <a-popconfirm title="确定重置表单内容吗？" @confirm="confirmClearForm">
             <a-button type="primary" danger><Icon icon="bx:reset" :size="25" /></a-button>
           </a-popconfirm>
-          <a-popconfirm title="确定上传文章吗？" @confirm="confirmPublish" @cancel="cancelPublish">
+          <a-popconfirm title="确定上传文章吗？" @confirm="confirmPublish">
             <a-button type="primary"><Icon icon="ic:round-publish" :size="25" /></a-button>
           </a-popconfirm>
         </a-space>
       </template>
     </a-drawer>
+    <Loading :loading="loading" :absolute="props.absolute" tip="Loading" />
   </div>
 </template>
 
@@ -91,12 +79,17 @@ import Markdown from '/@/components/Markdown/src/Markdown.vue'
 import MDInput from '/@/components/MDinput/index.vue'
 import EditorHeader from '/@/views/editor/EditorHeader/index.vue'
 import Icon from '/@/components/Icon/src/Icon.vue'
+import { Loading } from '/@/components/Loading'
 // 变量
 import type { Rule } from 'ant-design-vue/es/form'
 import { SingleArticleModel } from '/@/api/sys/model/articleModel'
 import { getSingleArticle, editSingleArticle, createSingleArticle } from '/@/api/sys/article'
 const props = defineProps({
   isEdit: { type: Boolean, default: false },
+  absolute: {
+    type: Boolean,
+    default: true,
+  },
 })
 const route = useRoute()
 
@@ -104,14 +97,20 @@ const { createMessage } = useMessage()
 const visible = ref<boolean>(false)
 const width = ref<Number>(500)
 let timeout
+let resetFormData
 const markdownInstance = ref()
+const loading = ref(false)
 onMounted(() => {
   if (props.isEdit) {
+    loading.value = true
     getSingleArticle(Number(route.params.id))
       .then((res) => {
         formData = Object.assign(formData, res)
+        resetFormData = Object.assign({}, formData)
+        loading.value = false
       })
       .catch((err) => {
+        loading.value = false
         console.log(err)
       })
   }
@@ -119,7 +118,6 @@ onMounted(() => {
 onUnmounted(() => {
   if (!props.isEdit) {
     clearInterval(timeout)
-    console.log('clear')
   }
 })
 const getMarkdownInstace = (instance) => {
@@ -170,9 +168,7 @@ const rules = reactive<Record<string, Rule[]>>({
     },
   ],
 })
-const { resetFields, validate, validateInfos } = useForm(formData, rules, {
-  onValidate: (...args) => console.log(...args),
-})
+const { resetFields, validate, validateInfos } = useForm(formData, rules)
 
 const handleSubmit = () => {
   validate()
@@ -222,30 +218,28 @@ const handleDrawerOpen = (visible: boolean) => {
 }
 //气泡弹出框
 const confirmClearArticle = () => {
-  console.log('confirm')
   return new Promise((resolve) => {
     formData.content = ''
     resolve(true)
     createMessage.success('文档已清空', 1)
   })
 }
-const cancelClearArticle = () => {
-  console.log('cancel')
-}
+
 const confirmClearForm = () => {
-  console.log('confirmF')
   return new Promise((resolve) => {
     // resetFields(['title'])
-    formData.title = ''
-    formData.content = ''
-    formData.publish = dayjs().format('YYYY-MM-DD HH:mm:ss')
+    if (!props.isEdit) {
+      formData.title = ''
+      formData.content = ''
+      formData.publish = dayjs().format('YYYY-MM-DD HH:mm:ss')
+    } else {
+      formData = Object.assign(formData, resetFormData)
+    }
     resolve(true)
     createMessage.success('表单内容清空', 1)
   })
 }
-const cancelClearForm = () => {
-  console.log('cancelF')
-}
+
 const confirmPublish = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -256,13 +250,9 @@ const confirmPublish = () => {
     }
   })
 }
-const cancelPublish = () => {
-  console.log('cancelP')
-}
 
 const confirmDelArticle = () => {
   return new Promise(async (resolve, reject) => {
-    console.log('confrimP')
     try {
       //执行删除文章api
       resolve(true)
@@ -270,9 +260,6 @@ const confirmDelArticle = () => {
       reject(error)
     }
   })
-}
-const cancelDelArticle = () => {
-  console.log('cancelD')
 }
 </script>
 

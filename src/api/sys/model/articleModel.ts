@@ -15,3 +15,11 @@ export interface ArticleParams {
   author: string
   publish: string
 }
+
+export interface ArticleListModel {
+  id: number
+  title: string
+  author: string
+  content: string
+  publish: string
+}

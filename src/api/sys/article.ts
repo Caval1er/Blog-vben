@@ -1,11 +1,12 @@
 import { defHttp } from '/@/utils/http/axios'
-import { SingleArticleModel, ArticleParams } from './model/articleModel'
+import { SingleArticleModel, ArticleParams, ArticleListModel } from './model/articleModel'
 import { ErrorMessageMode } from '/#/axios'
 
 enum Api {
   getSingleArticle = '/article',
   editSingleArticle = '/article',
   createSingleArticle = '/article',
+  getAllArticles = '/article/listAll',
 }
 
 /**
@@ -50,6 +51,21 @@ export function createSingleArticle(article: ArticleParams, mode: ErrorMessageMo
     {
       url: Api.createSingleArticle,
       params: article,
+    },
+    {
+      errorMessageMode: mode,
+    }
+  )
+}
+
+/**
+ * @description: get all articles
+ */
+
+export function getAllArticles(mode: ErrorMessageMode = 'modal') {
+  return defHttp.get<ArticleListModel[]>(
+    {
+      url: Api.getAllArticles,
     },
     {
       errorMessageMode: mode,

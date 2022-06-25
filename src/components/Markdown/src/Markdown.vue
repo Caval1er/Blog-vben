@@ -123,7 +123,7 @@ export default defineComponent({
         },
         outline: {
           enable: true,
-          position: 'left',
+          position: 'right',
         },
         input: (v) => {
           valueRef.value = v
@@ -147,9 +147,6 @@ export default defineComponent({
         cache: {
           enable: true,
           id: 'markdown-cache',
-          after: (html: string) => {
-            console.log(html)
-          },
         },
       })
     }
