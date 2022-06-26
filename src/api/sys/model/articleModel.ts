@@ -23,3 +23,13 @@ export interface ArticleListModel {
   content: string
   publish: string
 }
+
+export interface ArticleListParams {
+  page?: number
+  pageSize?: number
+}
+
+export interface ArticleListByPageModel {
+  list: ArticleListModel[]
+  total: number
+}

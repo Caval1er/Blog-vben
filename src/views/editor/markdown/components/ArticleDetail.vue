@@ -4,17 +4,17 @@
       <template #actions>
         <a-popconfirm v-if="props.isEdit" title="确定删除文章吗？" @confirm="confirmDelArticle">
           <a-button type="primary" class="editor-header-button" danger
-            ><Icon icon="fluent:delete-12-regular" :size="25"
-          /></a-button>
+            ><Icon icon="fluent:delete-12-regular" />删除</a-button
+          >
         </a-popconfirm>
         <a-popconfirm title="确定清除文章内容吗？" @confirm="confirmClearArticle">
           <a-button type="primary" class="editor-header-button" danger
-            ><Icon icon="bx:reset" :size="25"
-          /></a-button>
+            ><Icon icon="bx:reset" />清空</a-button
+          >
         </a-popconfirm>
         <a-button type="primary" @click="showForm" class="editor-header-button"
-          ><Icon icon="ic:round-publish" :size="25"
-        /></a-button>
+          ><Icon icon="ic:round-publish" />发布</a-button
+        >
       </template>
     </EditorHeader>
     <Markdown v-model:value="formData.content" @get="getMarkdownInstace" />
@@ -29,7 +29,13 @@
     >
       <a-form :label-col="{ style: { width: '40px' } }">
         <a-form-item name="title" v-bind="validateInfos.title">
-          <MDInput v-model:value="formData.title" type="text" :is-autofocus="true">Title</MDInput>
+          <MDInput
+            v-model:value="formData.title"
+            type="text"
+            :is-autofocus="true"
+            :visible="visible"
+            >Title</MDInput
+          >
         </a-form-item>
         <a-row :gutter="16">
           <a-col :span="16">
@@ -56,10 +62,10 @@
       <template #extra>
         <a-space>
           <a-popconfirm title="确定重置表单内容吗？" @confirm="confirmClearForm">
-            <a-button type="primary" danger><Icon icon="bx:reset" :size="25" /></a-button>
+            <a-button type="primary" danger><Icon icon="bx:reset" />重置</a-button>
           </a-popconfirm>
           <a-popconfirm title="确定上传文章吗？" @confirm="confirmPublish">
-            <a-button type="primary"><Icon icon="ic:round-publish" :size="25" /></a-button>
+            <a-button type="primary"><Icon icon="ic:round-publish" />发布</a-button>
           </a-popconfirm>
         </a-space>
       </template>
@@ -72,6 +78,7 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMessage } from '/@/hooks/web/useMessage'
+import { useGo } from '/@/hooks/web/usePage'
 import dayjs from 'dayjs'
 // 组件
 import { Form } from 'ant-design-vue'
@@ -83,7 +90,12 @@ import { Loading } from '/@/components/Loading'
 // 变量
 import type { Rule } from 'ant-design-vue/es/form'
 import { SingleArticleModel } from '/@/api/sys/model/articleModel'
-import { getSingleArticle, editSingleArticle, createSingleArticle } from '/@/api/sys/article'
+import {
+  getSingleArticle,
+  editSingleArticle,
+  createSingleArticle,
+  deleteSingleArticle,
+} from '/@/api/sys/article'
 const props = defineProps({
   isEdit: { type: Boolean, default: false },
   absolute: {
@@ -92,7 +104,7 @@ const props = defineProps({
   },
 })
 const route = useRoute()
-
+const go = useGo()
 const { createMessage } = useMessage()
 const visible = ref<boolean>(false)
 const width = ref<Number>(500)
@@ -173,7 +185,6 @@ const { resetFields, validate, validateInfos } = useForm(formData, rules)
 const handleSubmit = () => {
   validate()
     .then(async () => {
-      //调用发送文章的api
       try {
         if (props.isEdit) {
           await editSingleArticle(Number(route.params.id), formData)
@@ -187,7 +198,7 @@ const handleSubmit = () => {
         visible.value = false
         createMessage.success('文章上传成功', 2)
       }
-      // 提示用户继续编辑还是回到文章列表
+      // 提示用户继续编辑还是回到文章列表 TODO
     })
     .catch((err) => {
       console.log('error', err)
@@ -254,8 +265,10 @@ const confirmPublish = () => {
 const confirmDelArticle = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      //执行删除文章api
+      await deleteSingleArticle(Number(route.params.id))
       resolve(true)
+      createMessage.success('文章已删除', 1)
+      go('/article/list')
     } catch (error) {
       reject(error)
     }

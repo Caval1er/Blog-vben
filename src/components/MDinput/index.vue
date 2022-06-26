@@ -37,7 +37,7 @@
 <script lang="ts" setup>
 import { Form } from 'ant-design-vue'
 import { Dayjs } from 'dayjs'
-import { computed, toRef, ref, onMounted } from 'vue'
+import { computed, toRef, ref, watch } from 'vue'
 const props = defineProps({
   value: [String],
   disabled: { type: Boolean, default: false },
@@ -50,14 +50,27 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  visible: {
+    type: Boolean,
+    default: false,
+  },
 })
-onMounted(() => {
-  if (props.isAutofocus) {
-    setTimeout(() => {
-      inputRef.value.focus()
-    }, 100)
+
+watch(
+  () => props.visible,
+  (newValue) => {
+    if (newValue) {
+      setTimeout(() => {
+        inputRef.value.focus()
+      }, 300)
+    }
+  },
+  {
+    flush: 'post',
+    immediate: true,
   }
-})
+)
+
 const inputRef = ref()
 const focused = ref(false)
 const inputValue = toRef(props, 'value')
