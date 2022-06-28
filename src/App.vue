@@ -7,6 +7,7 @@
 </template>
 
 <script lang="ts" setup>
+import a from '/@/components/MDinput/index.vue'
 import { ConfigProvider } from 'ant-design-vue'
 import { AppProvider } from '/@/components/Application'
 import { useTitle } from '/@/hooks/web/useTitle'
