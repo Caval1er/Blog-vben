@@ -15,6 +15,7 @@ enum Api {
   delSingleArticle = '/article/del',
   getAllArticles = '/article/listAll',
   getArticlesByLimit = '/article/list/page',
+  testMarkdown = '/markdown/html',
 }
 
 /**
@@ -104,6 +105,20 @@ export function getArticlesByLimit(params: ArticleListParams, mode: ErrorMessage
     {
       url: Api.getArticlesByLimit,
       params,
+    },
+    {
+      errorMessageMode: mode,
+    }
+  )
+}
+
+export function getMarkdown(content: string, mode: ErrorMessageMode = 'modal') {
+  return defHttp.post(
+    {
+      url: Api.testMarkdown,
+      data: {
+        content,
+      },
     },
     {
       errorMessageMode: mode,

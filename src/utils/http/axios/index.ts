@@ -164,6 +164,7 @@ const transform: AxiosTransform = {
     const errorLogStore = useErrorLogStoreWithOut()
     errorLogStore.addAjaxErrorInfo(error)
     const { response, code, message, config } = error || {}
+    console.log(response)
 
     const errorMessageMode = config?.requestOptions?.errorMessageMode || 'none'
     const msg: string = response?.data?.error?.message ?? ''

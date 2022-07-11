@@ -95,6 +95,7 @@ import {
   editSingleArticle,
   createSingleArticle,
   deleteSingleArticle,
+  getMarkdown,
 } from '/@/api/sys/article'
 const props = defineProps({
   isEdit: { type: Boolean, default: false },
@@ -112,6 +113,7 @@ let timeout
 let resetFormData
 const markdownInstance = ref()
 const loading = ref(false)
+const html = ref('')
 onMounted(() => {
   if (props.isEdit) {
     loading.value = true

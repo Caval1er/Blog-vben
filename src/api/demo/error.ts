@@ -2,11 +2,11 @@ import { defHttp } from '/@/utils/http/axios'
 
 enum Api {
   // The address does not exist
-  Error = '/error',
+  Error = '/markdown/html',
 }
 
 /**
  * @description: Trigger ajax error
  */
 
-export const fireErrorApi = () => defHttp.get({ url: Api.Error })
+export const fireErrorApi = () => defHttp.post({ url: Api.Error })
