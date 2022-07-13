@@ -5,27 +5,32 @@ import {
   ArticleListModel,
   ArticleListParams,
   ArticleListByPageModel,
+  TagsModel,
+  TagModel,
+  TagParams,
 } from './model/articleModel'
 import { ErrorMessageMode } from '/#/axios'
 
 enum Api {
-  getSingleArticle = '/article',
-  editSingleArticle = '/article',
-  createSingleArticle = '/article',
+  getSingleArticle = '/admin/article/single',
+  getArticlesByLimit = '/admin/article/list',
+  getAllTag = '/admin/tag/all',
+  addTag = '/admin/tag/add',
+  editSingleArticle = '/article/edit',
+  createSingleArticle = '/article/create',
   delSingleArticle = '/article/del',
   getAllArticles = '/article/listAll',
-  getArticlesByLimit = '/article/list/page',
-  testMarkdown = '/markdown/html',
 }
 
 /**
  * @description: get single article
  */
 
-export function getSingleArticle(articleId: number, mode: ErrorMessageMode = 'modal') {
+export function getSingleArticle(articleId: string, mode: ErrorMessageMode = 'modal') {
   return defHttp.get<SingleArticleModel>(
     {
-      url: `${Api.getSingleArticle}/${articleId}`,
+      url: `${Api.getSingleArticle}`,
+      params: { id: articleId },
     },
     {
       errorMessageMode: mode,
@@ -101,7 +106,7 @@ export function getAllArticles(mode: ErrorMessageMode = 'modal') {
  */
 
 export function getArticlesByLimit(params: ArticleListParams, mode: ErrorMessageMode = 'modal') {
-  return defHttp.get<ArticleListByPageModel>(
+  return defHttp.post<ArticleListByPageModel>(
     {
       url: Api.getArticlesByLimit,
       params,
@@ -112,13 +117,22 @@ export function getArticlesByLimit(params: ArticleListParams, mode: ErrorMessage
   )
 }
 
-export function getMarkdown(content: string, mode: ErrorMessageMode = 'modal') {
-  return defHttp.post(
+export function getAlltag(mode: ErrorMessageMode = 'modal') {
+  return defHttp.get<TagsModel>(
     {
-      url: Api.testMarkdown,
-      data: {
-        content,
-      },
+      url: Api.getAllTag,
+    },
+    {
+      errorMessageMode: mode,
+    }
+  )
+}
+
+export function addTag(params: TagParams, mode: ErrorMessageMode = 'modal') {
+  return defHttp.post<TagModel>(
+    {
+      url: Api.addTag,
+      params,
     },
     {
       errorMessageMode: mode,

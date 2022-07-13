@@ -18,13 +18,22 @@
             {{ record.title }}
           </a>
         </template>
+        <template v-if="column.key === 'tags'">
+          <a-tag v-for="tag in record.tags" :key="tag._id">{{ tag.name }}</a-tag>
+        </template>
+        <template v-if="column.key === 'createdAt'"
+          >{{ dayjs(record.createdAt).format('YYYY-MM-DD HH:MM:ss') }}
+        </template>
+        <template v-if="column.key === 'updatedAt'"
+          >{{ dayjs(record.updatedAt).format('YYYY-MM-DD HH:MM:ss') }}
+        </template>
         <template v-if="column.key === 'operation'">
           <div class="table-container-operation">
             <a-space>
               <a-button
                 type="primary"
                 class="editor-header-button"
-                @click="handleEditArticle(record.id)"
+                @click="handleEditArticle(record._id)"
                 ><Icon icon="akar-icons:edit" :size="20"
               /></a-button>
               <a-popconfirm title="确定删除文章吗？" @confirm="hanldeDelArticle">
@@ -47,12 +56,13 @@ import type { TableProps } from 'ant-design-vue'
 import { usePagination } from 'vue-request'
 import { getArticlesByLimit, deleteSingleArticle } from '/@/api/sys/article'
 import { useMessage } from '/@/hooks/web/useMessage'
+import dayjs from 'dayjs'
 const { createMessage } = useMessage()
 const go = useGo()
 
 const columns = reactive([
   {
-    title: 'Title',
+    title: '标题',
     dataIndex: 'title',
     key: 'title',
     resizable: true,
@@ -62,7 +72,7 @@ const columns = reactive([
     align: 'center',
   },
   {
-    title: 'Author',
+    title: '作者',
     dataIndex: 'author',
     key: 'author',
     width: 150,
@@ -72,17 +82,30 @@ const columns = reactive([
     align: 'center',
   },
   {
-    title: 'Content',
+    title: '内容',
     dataIndex: 'content',
     key: 'content',
     ellipsis: true,
     align: 'center',
   },
   {
-    title: 'Date',
-    dataIndex: 'publish',
-    key: 'date',
-    width: 250,
+    title: '标签',
+    dataIndex: 'tags',
+    key: 'tags',
+    align: 'center',
+  },
+  {
+    title: '创建时间',
+    dataIndex: 'createdAt',
+    key: 'createdAt',
+    width: 200,
+    align: 'center',
+  },
+  {
+    title: '修改时间',
+    dataIndex: 'updatedAt',
+    key: 'updatedAt',
+    width: 200,
     align: 'center',
   },
   {

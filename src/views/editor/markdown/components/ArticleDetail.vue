@@ -1,6 +1,16 @@
 <template>
   <div class="markdown-form">
     <EditorHeader :title="formData.title">
+      <template #date>
+        createdAt
+        <a-typography-text code>{{
+          dayjs(formData.createdAt).format('YYYY-MM-DD HH:MM:ss')
+        }}</a-typography-text>
+        updatedAt
+        <a-typography-text code>{{
+          dayjs(formData.updatedAt).format('YYYY-MM-DD HH:MM:ss')
+        }}</a-typography-text>
+      </template>
       <template #actions>
         <a-popconfirm v-if="props.isEdit" title="确定删除文章吗？" @confirm="confirmDelArticle">
           <a-button type="primary" class="editor-header-button" danger
@@ -16,6 +26,9 @@
           ><Icon icon="ic:round-publish" />发布</a-button
         >
       </template>
+      <template #tags>
+        <a-tag v-for="tag in formData.tags" :key="tag._id">{{ tag.name }}</a-tag>
+      </template>
     </EditorHeader>
     <Markdown v-model:value="formData.content" @get="getMarkdownInstace" />
     <a-drawer
@@ -25,10 +38,9 @@
       :width="width"
       placement="right"
       :closable="false"
-      @afterVisibleChange="handleDrawerOpen"
     >
       <a-form :label-col="{ style: { width: '40px' } }">
-        <a-form-item name="title" v-bind="validateInfos.title">
+        <a-form-item name="title">
           <MDInput
             v-model:value="formData.title"
             type="text"
@@ -37,27 +49,34 @@
             >Title</MDInput
           >
         </a-form-item>
-        <a-row :gutter="16">
-          <a-col :span="16">
-            <a-form-item name="author" v-bind="validateInfos.author">
-              <MDInput v-model:value="formData.author" type="text" :disabled="!authorDisabled"
-                >Author</MDInput
+        <a-form-item name="summary">
+          <a-textarea v-model:value="formData.summary" placeholder="文章概要" auto-size
+        /></a-form-item>
+        <a-form-item-rest>
+          <div class="tags-container">
+            <template v-for="tag in tags" :key="tag._id">
+              <a-checkable-tag
+                :checked="isTagChecked(tag)"
+                @change="(checked) => handleChange(tag, checked)"
+                :style="{ borderColor: 'rgb(217, 217, 217)' }"
               >
-            </a-form-item>
-          </a-col>
-          <a-col :span="8">
-            <div class="markdown-author-modify">
-              <a-switch
-                v-model:checked="authorDisabled"
-                checked-children="可修改"
-                un-checked-children="不可修改"
-              />
-            </div>
-          </a-col>
-        </a-row>
-        <a-form-item name="publish" v-bind="validateInfos.publish">
-          <MDInput type="datePicker" v-model:value="formData.publish">Date</MDInput>
-        </a-form-item>
+                {{ tag.name }}
+              </a-checkable-tag> </template
+            ><a-input
+              v-if="tagState.inputVisible"
+              ref="inputRef"
+              v-model:value="tagState.inputValue"
+              type="text"
+              size="small"
+              :style="{ width: '78px' }"
+              @blur="handleInputConfirm"
+              @keyup.enter="handleInputConfirm"
+            />
+            <a-tag v-else @click="showInput">
+              <Icon icon="eos-icons:content-new" :style="{ cursor: 'pointer' }" />
+            </a-tag></div
+        ></a-form-item-rest>
+        <a-form-item class="error-infos" v-bind="errorInfos" />
       </a-form>
       <template #extra>
         <a-space>
@@ -75,11 +94,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMessage } from '/@/hooks/web/useMessage'
 import { useGo } from '/@/hooks/web/usePage'
-import dayjs from 'dayjs'
 // 组件
 import { Form } from 'ant-design-vue'
 import Markdown from '/@/components/Markdown/src/Markdown.vue'
@@ -89,14 +107,18 @@ import Icon from '/@/components/Icon/src/Icon.vue'
 import { Loading } from '/@/components/Loading'
 // 变量
 import type { Rule } from 'ant-design-vue/es/form'
-import { SingleArticleModel } from '/@/api/sys/model/articleModel'
+import { toArray } from 'lodash-es'
+import { SingleArticleModel, Tag, Tags } from '/@/api/sys/model/articleModel'
 import {
   getSingleArticle,
   editSingleArticle,
   createSingleArticle,
   deleteSingleArticle,
-  getMarkdown,
+  getAlltag,
+  addTag,
 } from '/@/api/sys/article'
+import dayjs from 'dayjs'
+import { cloneDeep } from 'lodash-es'
 const props = defineProps({
   isEdit: { type: Boolean, default: false },
   absolute: {
@@ -109,41 +131,43 @@ const go = useGo()
 const { createMessage } = useMessage()
 const visible = ref<boolean>(false)
 const width = ref<Number>(500)
-let timeout
 let resetFormData
 const markdownInstance = ref()
 const loading = ref(false)
-const html = ref('')
-onMounted(() => {
+const tags = ref<Tags>([])
+onMounted(async () => {
   if (props.isEdit) {
+    try {
+      loading.value = true
+      const article = await getSingleArticle(route.params.id as string)
+      formData = Object.assign(formData, article)
+      resetFormData = cloneDeep(formData)
+      const Tag = await getAlltag()
+      tags.value = Tag.tags
+    } catch (error) {
+      console.log(error)
+    } finally {
+      loading.value = false
+    }
+  } else {
     loading.value = true
-    getSingleArticle(Number(route.params.id))
-      .then((res) => {
-        formData = Object.assign(formData, res)
-        resetFormData = Object.assign({}, formData)
-        loading.value = false
-      })
-      .catch((err) => {
-        loading.value = false
-        console.log(err)
-      })
   }
 })
-onUnmounted(() => {
-  if (!props.isEdit) {
-    clearInterval(timeout)
-  }
-})
+onUnmounted(() => {})
 const getMarkdownInstace = (instance) => {
   markdownInstance.value = instance
   instance.focus()
 }
 const useForm = Form.useForm
 let formData = reactive<SingleArticleModel>({
+  _id: '',
   title: '',
-  publish: '',
+  createdAt: '',
+  updatedAt: '',
   author: 'zjh',
+  summary: '',
   content: '',
+  tags: [],
 })
 const validateContent = async (_rule: Rule, value: string) => {
   if (value === '\n' || value === '') {
@@ -156,33 +180,26 @@ const rules = reactive<Record<string, Rule[]>>({
   title: [
     {
       required: true,
-      message: '标题为必填项',
+      message: '标题:必填项',
     },
     {
-      min: 4,
+      min: 2,
       max: 15,
-      message: '长度必须是4~15个字符',
-      trigger: 'blur',
+      message: '标题:长度必须是2~15个字符',
+      // trigger: 'blur',
     },
   ],
-  publish: [{ required: true, message: '发表时间为必填项', trigger: 'blur' }],
-  author: [{ required: true, message: '作者为必填项' }],
   content: [
     {
       required: true,
-      message: '文档为必填项',
+      message: '文档:必填项',
     },
     {
       validator: validateContent,
     },
-    {
-      min: 1,
-      message: '文档字数必须大于1',
-      trigger: 'blur',
-    },
   ],
 })
-const { resetFields, validate, validateInfos } = useForm(formData, rules)
+const { resetFields, validate, validateInfos, mergeValidateInfo } = useForm(formData, rules)
 
 const handleSubmit = () => {
   validate()
@@ -213,21 +230,13 @@ const handleSubmit = () => {
       }
     })
 }
+const errorInfos = computed(() => {
+  return mergeValidateInfo(toArray(validateInfos))
+})
 
-let authorDisabled = ref<boolean>(false)
 //抽屉
 const showForm = () => {
   visible.value = true
-}
-const handleDrawerOpen = (visible: boolean) => {
-  if (!props.isEdit) {
-    if (visible) {
-      formData.publish = dayjs().format('YYYY-MM-DD HH:mm:ss')
-      timeout = setInterval(() => (formData.publish = dayjs().format('YYYY-MM-DD HH:mm:ss')), 1000)
-    } else {
-      clearInterval(timeout)
-    }
-  }
 }
 //气泡弹出框
 const confirmClearArticle = () => {
@@ -244,8 +253,9 @@ const confirmClearForm = () => {
     if (!props.isEdit) {
       formData.title = ''
       formData.content = ''
-      formData.publish = dayjs().format('YYYY-MM-DD HH:mm:ss')
     } else {
+      console.log(resetFormData)
+
       formData = Object.assign(formData, resetFormData)
     }
     resolve(true)
@@ -274,6 +284,43 @@ const confirmDelArticle = () => {
     } catch (error) {
       reject(error)
     }
+  })
+}
+const tagState = reactive({
+  inputVisible: false,
+  inputValue: '',
+})
+const inputRef = ref()
+
+const handleChange = (tag: Tag, checked: boolean) => {
+  checked
+    ? formData.tags.push(tag)
+    : (formData.tags = formData.tags.filter((t) => t.name !== tag.name))
+}
+const isTagChecked = (tag: Tag) => {
+  return formData.tags.some((item) => item.name === tag.name)
+}
+const handleInputConfirm = async () => {
+  const inputValue = tagState.inputValue
+  if (inputValue && formData.tags.some((item) => item.name === inputValue)) {
+    console.log('有重复的了!')
+    return
+  } else if (inputValue) {
+    const tag = await addTag({
+      name: inputValue,
+    })
+    formData.tags.push(tag)
+    tags.value.push(tag)
+  }
+  Object.assign(tagState, {
+    inputVisible: false,
+    inputValue: '',
+  })
+}
+const showInput = () => {
+  tagState.inputVisible = true
+  nextTick(() => {
+    inputRef.value.focus()
   })
 }
 </script>
@@ -319,5 +366,16 @@ html[data-theme='dark'] {
 }
 .editor-header-button {
   margin-right: 15px;
+}
+
+.tags-container {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  .ant-tag {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 30px;
+  }
 }
 </style>

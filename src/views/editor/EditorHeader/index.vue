@@ -10,6 +10,9 @@
           <slot name="tags"><a-tag color="blue">tags</a-tag></slot>
         </template>
         <template #extra>
+          <div class="date-container">
+            <slot name="date"></slot>
+          </div>
           <div class="actions-container">
             <slot name="actions">actions</slot>
           </div>
@@ -42,7 +45,7 @@ html[data-theme='dark'] {
 .editor-header {
   height: 35px;
   position: relative;
-  z-index: 1000;
+  z-index: 100;
   padding: 0 10px;
   box-sizing: border-box;
   .editor-header-fixed {
@@ -60,6 +63,10 @@ html[data-theme='dark'] {
         }
         .ant-page-header-heading-extra {
           margin: 0;
+        }
+        .ant-page-header-heading-extra {
+          display: flex;
+          align-items: center;
         }
       }
     }

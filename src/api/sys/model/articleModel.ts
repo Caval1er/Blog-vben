@@ -1,19 +1,42 @@
 /**
- * @description: Login interface parameters
+ * @description: Article
  */
 
+export type Tags = Tag[]
+export interface Tag {
+  _id: string
+  name: string
+  color?: string
+}
+export interface TagModel {
+  _id: string
+  name: string
+  color: string
+}
+export interface TagsModel {
+  tags: Tags
+  count: number
+}
+export interface TagParams {
+  _id?: string
+  name: string
+  color?: string
+}
 export interface SingleArticleModel {
+  _id: string
   title: string
-  publish: string
+  createdAt?: string
+  updatedAt?: string
   author: string
   content: string
+  tags: Tags
+  summary
 }
 
 export interface ArticleParams {
   title: string
   content: string
   author: string
-  publish: string
 }
 
 export interface ArticleListModel {
