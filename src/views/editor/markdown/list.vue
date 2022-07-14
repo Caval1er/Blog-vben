@@ -165,6 +165,8 @@ const pagination = computed(() => ({
   showTotal(total) {
     return `总共 ${total} 篇文章`
   },
+  responsive: true,
+  showSizeChanger: true,
 }))
 
 const handleTableChange: TableProps['onChange'] = (pag: { pageSize: number; current: number }) => {

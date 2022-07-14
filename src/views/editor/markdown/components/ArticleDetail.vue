@@ -5,11 +5,11 @@
         <div v-if="props.isEdit">
           createdAt
           <a-typography-text code>{{
-            dayjs(formData.createdAt).format('YYYY-MM-DD HH:MM:ss')
+            dayjs(formData.createdAt).format('YYYY-MM-DD HH:mm:ss')
           }}</a-typography-text>
           updatedAt
           <a-typography-text code>{{
-            dayjs(formData.updatedAt).format('YYYY-MM-DD HH:MM:ss')
+            dayjs(formData.updatedAt).format('YYYY-MM-DD HH:mm:ss')
           }}</a-typography-text>
         </div>
       </template>
@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted, computed, nextTick } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed, nextTick, onActivated } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMessage } from '/@/hooks/web/useMessage'
 import { useGo } from '/@/hooks/web/usePage'
@@ -123,6 +123,7 @@ import {
 } from '/@/api/sys/article'
 import dayjs from 'dayjs'
 import { cloneDeep } from 'lodash-es'
+import { useUserStore } from '/@/store/modules/user'
 const props = defineProps({
   isEdit: { type: Boolean, default: false },
   absolute: {
@@ -132,6 +133,7 @@ const props = defineProps({
 })
 const route = useRoute()
 const go = useGo()
+const userStore = useUserStore()
 const Message = useMessage().createMessage
 const visible = ref<boolean>(false)
 const width = ref<Number>(500)
@@ -165,7 +167,18 @@ onMounted(async () => {
     }
   }
 })
-
+onActivated(async () => {
+  try {
+    tagState.loading = true
+    const Tag = await getAlltag()
+    tags.value = Tag.tags
+    console.log(tags.value)
+  } catch (error) {
+    console.log(error)
+  } finally {
+    tagState.loading = false
+  }
+})
 onUnmounted(() => {})
 const getMarkdownInstace = (instance) => {
   markdownInstance.value = instance
@@ -177,7 +190,7 @@ let formData = reactive<SingleArticleModel>({
   title: '',
   createdAt: '',
   updatedAt: '',
-  author: 'zjh',
+  author: userStore.userInfo!.realName,
   summary: '',
   content: '',
   tags: [],
