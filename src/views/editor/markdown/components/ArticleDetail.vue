@@ -2,14 +2,16 @@
   <div class="markdown-form">
     <EditorHeader :title="formData.title">
       <template #date>
-        createdAt
-        <a-typography-text code>{{
-          dayjs(formData.createdAt).format('YYYY-MM-DD HH:MM:ss')
-        }}</a-typography-text>
-        updatedAt
-        <a-typography-text code>{{
-          dayjs(formData.updatedAt).format('YYYY-MM-DD HH:MM:ss')
-        }}</a-typography-text>
+        <div v-if="props.isEdit">
+          createdAt
+          <a-typography-text code>{{
+            dayjs(formData.createdAt).format('YYYY-MM-DD HH:MM:ss')
+          }}</a-typography-text>
+          updatedAt
+          <a-typography-text code>{{
+            dayjs(formData.updatedAt).format('YYYY-MM-DD HH:MM:ss')
+          }}</a-typography-text>
+        </div>
       </template>
       <template #actions>
         <a-popconfirm v-if="props.isEdit" title="确定删除文章吗？" @confirm="confirmDelArticle">
@@ -53,28 +55,30 @@
           <a-textarea v-model:value="formData.summary" placeholder="文章概要" auto-size
         /></a-form-item>
         <a-form-item-rest>
-          <div class="tags-container">
-            <template v-for="tag in tags" :key="tag._id">
-              <a-checkable-tag
-                :checked="isTagChecked(tag)"
-                @change="(checked) => handleChange(tag, checked)"
-                :style="{ borderColor: 'rgb(217, 217, 217)' }"
-              >
-                {{ tag.name }}
-              </a-checkable-tag> </template
-            ><a-input
-              v-if="tagState.inputVisible"
-              ref="inputRef"
-              v-model:value="tagState.inputValue"
-              type="text"
-              size="small"
-              :style="{ width: '78px' }"
-              @blur="handleInputConfirm"
-              @keyup.enter="handleInputConfirm"
-            />
-            <a-tag v-else @click="showInput">
-              <Icon icon="eos-icons:content-new" :style="{ cursor: 'pointer' }" />
-            </a-tag></div
+          <a-spin :spinning="tagState.loading">
+            <div class="tags-container">
+              <template v-for="tag in tags" :key="tag._id">
+                <a-checkable-tag
+                  :checked="isTagChecked(tag)"
+                  @change="(checked) => handleChange(tag, checked)"
+                  :style="{ borderColor: 'rgb(217, 217, 217)' }"
+                >
+                  {{ tag.name }}
+                </a-checkable-tag> </template
+              ><a-input
+                v-if="tagState.inputVisible"
+                ref="inputRef"
+                v-model:value="tagState.inputValue"
+                type="text"
+                size="small"
+                :style="{ width: '78px' }"
+                @blur="handleInputConfirm"
+                @keyup.enter="handleInputConfirm"
+              />
+              <a-tag v-else @click="showInput">
+                <Icon icon="eos-icons:content-new" :style="{ cursor: 'pointer' }" />
+              </a-tag>
+            </div> </a-spin
         ></a-form-item-rest>
         <a-form-item class="error-infos" v-bind="errorInfos" />
       </a-form>
@@ -128,7 +132,7 @@ const props = defineProps({
 })
 const route = useRoute()
 const go = useGo()
-const { createMessage } = useMessage()
+const Message = useMessage().createMessage
 const visible = ref<boolean>(false)
 const width = ref<Number>(500)
 let resetFormData
@@ -150,9 +154,18 @@ onMounted(async () => {
       loading.value = false
     }
   } else {
-    loading.value = true
+    try {
+      loading.value = true
+      const Tag = await getAlltag()
+      tags.value = Tag.tags
+    } catch (error) {
+      console.log(error)
+    } finally {
+      loading.value = false
+    }
   }
 })
+
 onUnmounted(() => {})
 const getMarkdownInstace = (instance) => {
   markdownInstance.value = instance
@@ -206,27 +219,28 @@ const handleSubmit = () => {
     .then(async () => {
       try {
         if (props.isEdit) {
-          await editSingleArticle(Number(route.params.id), formData)
+          const articleModify = await editSingleArticle(route.params.id as string, formData)
+          Object.assign(formData, articleModify)
+          resetFormData = cloneDeep(formData)
         } else {
           await createSingleArticle(formData)
+          resetFields()
         }
       } catch (error) {
         console.log(error)
       } finally {
-        resetFields()
         visible.value = false
-        createMessage.success('文章上传成功', 2)
+        Message.success('文章上传成功', 2)
       }
       // 提示用户继续编辑还是回到文章列表 TODO
     })
     .catch((err) => {
       console.log('error', err)
       const contentResult = err.errorFields.find((item) => item.name === 'content')
-
       if (contentResult) {
-        createMessage.error('文章发表失败，文档不能为空', 2)
+        Message.error('文章发表失败，文档不能为空', 2)
       } else {
-        createMessage.error('文章发表失败', 2)
+        Message.error('文章发表失败', 2)
       }
     })
 }
@@ -243,7 +257,7 @@ const confirmClearArticle = () => {
   return new Promise((resolve) => {
     formData.content = ''
     resolve(true)
-    createMessage.success('文档已清空', 1)
+    Message.success('文档已清空', 1)
   })
 }
 
@@ -251,15 +265,12 @@ const confirmClearForm = () => {
   return new Promise((resolve) => {
     // resetFields(['title'])
     if (!props.isEdit) {
-      formData.title = ''
-      formData.content = ''
+      resetFields()
     } else {
-      console.log(resetFormData)
-
-      formData = Object.assign(formData, resetFormData)
+      Object.assign(formData, resetFormData)
     }
     resolve(true)
-    createMessage.success('表单内容清空', 1)
+    Message.success('表单内容清空', 1)
   })
 }
 
@@ -277,9 +288,9 @@ const confirmPublish = () => {
 const confirmDelArticle = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      await deleteSingleArticle(Number(route.params.id))
+      await deleteSingleArticle(route.params.id as string)
       resolve(true)
-      createMessage.success('文章已删除', 1)
+      Message.success('文章已删除', 1)
       go('/article/list')
     } catch (error) {
       reject(error)
@@ -289,6 +300,7 @@ const confirmDelArticle = () => {
 const tagState = reactive({
   inputVisible: false,
   inputValue: '',
+  loading: false,
 })
 const inputRef = ref()
 
@@ -302,15 +314,22 @@ const isTagChecked = (tag: Tag) => {
 }
 const handleInputConfirm = async () => {
   const inputValue = tagState.inputValue
-  if (inputValue && formData.tags.some((item) => item.name === inputValue)) {
-    console.log('有重复的了!')
-    return
+  if (inputValue && tags.value.some((item) => item.name === inputValue)) {
+    Message.error('标签不能重复！', 1)
   } else if (inputValue) {
-    const tag = await addTag({
-      name: inputValue,
-    })
-    formData.tags.push(tag)
-    tags.value.push(tag)
+    try {
+      tagState.loading = true
+      const tag = await addTag({
+        name: inputValue,
+      })
+      formData.tags.push(tag)
+      tags.value.push(tag)
+      Message.success('添加标签成功', 1)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      tagState.loading = false
+    }
   }
   Object.assign(tagState, {
     inputVisible: false,

@@ -16,9 +16,9 @@ enum Api {
   getArticlesByLimit = '/admin/article/list',
   getAllTag = '/admin/tag/all',
   addTag = '/admin/tag/add',
-  editSingleArticle = '/article/edit',
-  createSingleArticle = '/article/create',
-  delSingleArticle = '/article/del',
+  editSingleArticle = '/admin/article/edit',
+  createSingleArticle = '/admin/article/add',
+  delSingleArticle = '/admin/article/delete',
   getAllArticles = '/article/listAll',
 }
 
@@ -42,14 +42,15 @@ export function getSingleArticle(articleId: string, mode: ErrorMessageMode = 'mo
  * @description: edit single article
  */
 export function editSingleArticle(
-  articleId: number,
+  articleId: string,
   article: ArticleParams,
   mode: ErrorMessageMode = 'modal'
 ) {
-  return defHttp.put(
+  return defHttp.post(
     {
-      url: `${Api.editSingleArticle}/${articleId}`,
-      params: article,
+      url: Api.editSingleArticle,
+      params: { id: articleId },
+      data: article,
     },
     {
       errorMessageMode: mode,
@@ -76,10 +77,13 @@ export function createSingleArticle(article: ArticleParams, mode: ErrorMessageMo
  * @description: delete single article
  */
 
-export function deleteSingleArticle(articleId: number, mode: ErrorMessageMode = 'modal') {
+export function deleteSingleArticle(articleId: string, mode: ErrorMessageMode = 'modal') {
   return defHttp.post(
     {
-      url: `${Api.delSingleArticle}/${articleId}`,
+      url: Api.delSingleArticle,
+      params: {
+        id: articleId,
+      },
     },
     {
       errorMessageMode: mode,

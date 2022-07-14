@@ -102,7 +102,7 @@ export default defineComponent({
         },
         preview: {
           // actions: [],
-          maxWidth: 1700,
+          maxWidth: 800,
           theme: {
             current: 'vue',
             list: { vue: 'vue', 'vue-dark': 'vue-dark' },
@@ -113,18 +113,8 @@ export default defineComponent({
             lineNumber: true,
             style: 'solarized-dark256',
           },
-          markdown: {
-            toc: true,
-          },
         },
-        counter: {
-          enable: true,
-          type: 'markdown',
-        },
-        outline: {
-          enable: true,
-          position: 'right',
-        },
+
         input: (v) => {
           valueRef.value = v
           emit('update:value', v)

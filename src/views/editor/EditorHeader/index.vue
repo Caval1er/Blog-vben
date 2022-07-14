@@ -2,7 +2,7 @@
   <div class="editor-header">
     <div class="editor-header-fixed">
       <a-page-header
-        :title="props.title ? props.title : '未指定标题'"
+        :title="props.title ? props.title : ''"
         @back="goArticleList"
         class="editor-page-header"
       >
@@ -60,6 +60,9 @@ html[data-theme='dark'] {
       :deep(.ant-page-header-heading) {
         .ant-page-header-heading-left {
           margin: 0;
+          .ant-page-header-heading-title {
+            font-size: 22px;
+          }
         }
         .ant-page-header-heading-extra {
           margin: 0;

@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="createArticle">
 import ArticleDetail from './components/ArticleDetail.vue'
 </script>
 

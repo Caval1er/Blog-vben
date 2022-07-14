@@ -146,7 +146,7 @@ body .date-picker {
   transition: @transition;
 }
 .material-input__component {
-  font-family: @font-monospace;
+  font-family: @font-sans-serif;
   margin-top: 36px;
   position: relative;
   * {

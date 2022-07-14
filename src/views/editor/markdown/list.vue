@@ -36,7 +36,7 @@
                 @click="handleEditArticle(record._id)"
                 ><Icon icon="akar-icons:edit" :size="20"
               /></a-button>
-              <a-popconfirm title="确定删除文章吗？" @confirm="hanldeDelArticle">
+              <a-popconfirm title="确定删除文章吗？" @confirm="hanldeDelArticle(record._id)">
                 <a-button type="primary" class="editor-header-button" danger
                   ><Icon icon="fluent:delete-12-regular" :size="20"
                 /></a-button>
@@ -121,14 +121,14 @@ const handleResizeColumn = (w, col) => {
   col.width = w
 }
 
-const handleEditArticle = (id: number) => {
+const handleEditArticle = (id: string) => {
   go(`/article/edit/${id}`)
 }
-const hanldeDelArticle = () => {
+const hanldeDelArticle = (id: string) => {
   return new Promise(async (resolve, reject) => {
     try {
       //执行删除文章api
-      await deleteSingleArticle(4)
+      await deleteSingleArticle(id)
       await run({
         page: current.value,
         pageSize: pageSize.value,

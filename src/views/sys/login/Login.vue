@@ -1,10 +1,5 @@
 <template>
   <div :class="prefixCls" class="relative w-full h-full px-4">
-    <AppLocalePicker
-      class="absolute text-white top-4 right-4 enter-x xl:text-gray-600"
-      :showText="false"
-      v-if="!sessionTimeout && showLocale"
-    />
     <AppDarkModeToggle class="absolute top-3 right-7 enter-x" v-if="!sessionTimeout" />
 
     <span class="-enter-x xl:hidden">
@@ -44,13 +39,12 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { AppLogo } from '/@/components/Application'
-import { AppLocalePicker, AppDarkModeToggle } from '/@/components/Application'
+import { AppDarkModeToggle } from '/@/components/Application'
 import LoginForm from './LoginForm.vue'
 
 import { useGlobSetting } from '/@/hooks/setting'
 import { useI18n } from '/@/hooks/web/useI18n'
 import { useDesign } from '/@/hooks/web/useDesign'
-import { useLocaleStore } from '/@/store/modules/locale'
 
 defineProps({
   sessionTimeout: {
@@ -61,8 +55,6 @@ defineProps({
 const globSetting = useGlobSetting()
 const { prefixCls } = useDesign('login')
 const { t } = useI18n()
-const localeStore = useLocaleStore()
-const showLocale = localeStore.getShowPicker
 const title = computed(() => globSetting?.title ?? '')
 </script>
 <style lang="less">

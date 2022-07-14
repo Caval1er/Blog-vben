@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="editArticle">
 import ArticleDetail from './components/ArticleDetail.vue'
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <Dropdown placement="bottomLeft" :overlayClassName="`${prefixCls}-dropdown-overlay`">
+  <a-dropdown placement="bottomLeft" :overlayClassName="`${prefixCls}-dropdown-overlay`">
     <span :class="[prefixCls, `${prefixCls}--${theme}`]" class="flex">
       <img :class="`${prefixCls}__header`" :src="getUserInfo.avatar" />
       <span :class="`${prefixCls}__info hidden md:block`">
@@ -10,33 +10,27 @@
     </span>
 
     <template #overlay>
-      <Menu @click="handleMenuClick">
-        <MenuItem
-          key="doc"
-          :text="t('layout.header.dropdownItemDoc')"
-          icon="ion:document-text-outline"
-          v-if="getShowDoc"
-        />
+      <a-menu @click="handleMenuClick">
+        <a-menu-item key="doc" v-if="getShowDoc"
+          ><span>文档<Icon icon="ion:document-text-outline" /></span
+        ></a-menu-item>
         <MenuDivider v-if="getShowDoc" />
-        <MenuItem
-          v-if="getUseLockPage"
-          key="lock"
-          :text="t('layout.header.tooltipLock')"
-          icon="ion:lock-closed-outline"
-        />
-        <MenuItem
-          key="logout"
-          :text="t('layout.header.dropdownItemLoginOut')"
-          icon="ion:power-outline"
-        />
-      </Menu>
+        <a-menu-item v-if="getUseLockPage" key="lock"
+          ><span>锁定屏幕 </span><Icon icon="ion:lock-closed-outline" />
+        </a-menu-item>
+        <MenuDivider v-if="getShowDoc" />
+        <a-menu-item key="logout"
+          ><span>{{ t('layout.header.dropdownItemLoginOut') }} </span
+          ><Icon icon="ion:power-outline"
+        /></a-menu-item>
+      </a-menu>
     </template>
-  </Dropdown>
+  </a-dropdown>
   <LockAction @register="register" />
 </template>
 <script lang="ts">
 // components
-import { Dropdown, Menu } from 'ant-design-vue'
+import { Menu } from 'ant-design-vue'
 
 import { defineComponent, computed } from 'vue'
 
@@ -59,9 +53,6 @@ type MenuEvent = 'logout' | 'doc' | 'lock'
 export default defineComponent({
   name: 'UserDropdown',
   components: {
-    Dropdown,
-    Menu,
-    MenuItem: createAsyncComponent(() => import('./DropMenuItem.vue')),
     MenuDivider: Menu.Divider,
     LockAction: createAsyncComponent(() => import('../lock/LockModal.vue')),
   },
@@ -170,6 +161,11 @@ export default defineComponent({
   &-dropdown-overlay {
     .ant-dropdown-menu-item {
       min-width: 160px;
+    }
+    .ant-dropdown-menu-title-content {
+      display: flex;
+      align-items: center;
+      gap: 2px;
     }
   }
 }

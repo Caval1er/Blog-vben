@@ -43,6 +43,7 @@ const markdown: AppRouteModule = {
         icon: 'akar-icons:edit',
         hideMenu: true,
         currentActiveMenu: '/article/list',
+        ignoreKeepAlive: true,
       },
     },
   ],

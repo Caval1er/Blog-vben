@@ -23,28 +23,35 @@ export interface TagParams {
   color?: string
 }
 export interface SingleArticleModel {
-  _id: string
+  _id?: string
   title: string
   createdAt?: string
   updatedAt?: string
   author: string
   content: string
   tags: Tags
-  summary
+  summary: string
 }
 
 export interface ArticleParams {
+  _id?: string
   title: string
   content: string
   author: string
+  createdAt?: string
+  updatedAt?: string
+  summary?: string
 }
 
 export interface ArticleListModel {
-  id: number
+  _id: number
   title: string
   author: string
   content: string
-  publish: string
+  createdAt: string
+  updatedAt: string
+  summary?: string
+  tags: Tags
 }
 
 export interface ArticleListParams {
